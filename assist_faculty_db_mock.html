@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>aSSIST University 통합 교강사진 DB</title>
+  <style>
+    :root {
+      --assist-blue: #1f5fa8;
+      --assist-navy: #17345d;
+      --soft-blue: #b9d4ea;
+      --pale-blue: #eef7ff;
+      --cream: #fff1e7;
+      --ink: #243247;
+      --muted: #63758d;
+      --line: #dbe8f3;
+      --white: #ffffff;
+      --mint: #8ed8ca;
+      --coral: #ffb49a;
+      --lavender: #8178c7;
+      --shadow: 0 24px 60px rgba(23, 52, 93, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.96) 0 12%, transparent 13%),
+        radial-gradient(circle at 92% 86%, rgba(255, 241, 231, 0.8) 0 15%, transparent 16%),
+        linear-gradient(135deg, #eef7ff 0%, #f9fbfd 42%, #e7f1fa 100%);
+    }
+
+    .stage {
+      width: min(1440px, calc(100% - 36px));
+      margin: 34px auto;
+      padding: 34px;
+      border-radius: 18px;
+      background: var(--soft-blue);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    }
+
+    .page {
+      position: relative;
+      min-height: 760px;
+      overflow: hidden;
+      border-radius: 4px;
+      background: var(--cream);
+      box-shadow: var(--shadow);
+    }
+
+    .blob {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.92);
+      pointer-events: none;
+    }
+
+    .blob.one {
+      width: 300px;
+      height: 190px;
+      left: -80px;
+      top: -42px;
+      border-radius: 0 0 150px 0;
+    }
+
+    .blob.two {
+      width: 360px;
+      height: 230px;
+      right: -76px;
+      top: 190px;
+      border-radius: 55% 0 0 45%;
+    }
+
+    .blob.three {
+      width: 300px;
+      height: 260px;
+      right: 210px;
+      bottom: -150px;
+      border-radius: 52% 48% 0 0;
+    }
+
+    .spark {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      color: var(--lavender);
+      font-size: 24px;
+      line-height: 18px;
+      opacity: 0.85;
+    }
+
+    .spark.s1 { left: 170px; top: 132px; }
+    .spark.s2 { left: 360px; top: 72px; }
+    .spark.s3 { left: 535px; top: 200px; }
+    .spark.s4 { right: 190px; top: 140px; }
+    .spark.s5 { left: 245px; bottom: 168px; }
+    .spark.s6 { right: 92px; top: 250px; }
+
+    header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 44px 66px 26px;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 220px;
+    }
+
+    .brand img {
+      width: 142px;
+      height: auto;
+      display: block;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #665fa7;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    nav a {
+      color: inherit;
+      text-decoration: none;
+      padding: 9px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    nav a.active {
+      color: var(--white);
+      background: #9bc1dc;
+    }
+
+    .search {
+      display: flex;
+      align-items: center;
+      width: 170px;
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: #f6fbff;
+      color: #9aaac0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(430px, 0.94fr) minmax(560px, 1.06fr);
+      gap: 34px;
+      padding: 42px 66px 52px;
+    }
+
+    .hero-copy {
+      padding-top: 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 7px 13px;
+      border: 1px solid rgba(31, 95, 168, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.64);
+      color: var(--assist-blue);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 520px;
+      color: var(--assist-navy);
+      font-size: clamp(38px, 4.4vw, 64px);
+      line-height: 1.02;
+      letter-spacing: 0;
+      text-shadow:
+        1px 1px 0 #ffffff,
+        2px 2px 0 rgba(129, 120, 199, 0.22);
+    }
+
+    .subtitle {
+      margin: 18px 0 0;
+      max-width: 430px;
+      color: #5c6098;
+      font-size: 17px;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 142px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #6d65b9;
+      color: #6d65b9;
+      background: transparent;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      color: var(--white);
+      background: #6d65b9;
+      box-shadow: 0 10px 20px rgba(109, 101, 185, 0.24);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 34px;
+      max-width: 500px;
+    }
+
+    .metric {
+      min-height: 74px;
+      padding: 14px 16px;
+      border: 1px solid rgba(31, 95, 168, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--assist-blue);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .visual {
+      position: relative;
+      min-height: 460px;
+    }
+
+    .monitor {
+      position: absolute;
+      right: 0;
+      top: 42px;
+      width: min(100%, 650px);
+      min-height: 360px;
+      border: 9px solid #9cc2dc;
+      border-radius: 18px;
+      background: #eaf6ff;
+      box-shadow: 0 20px 35px rgba(23, 52, 93, 0.16);
+    }
+
+    .monitor::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -72px;
+      width: 116px;
+      height: 72px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #9cc2dc, #b9d4ea);
+      clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+    }
+
+    .screen-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 40px;
+      padding: 0 18px;
+      border-bottom: 1px solid #c9dff0;
+      color: var(--assist-blue);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dots i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--coral);
+    }
+
+    .dots i:nth-child(2) { background: var(--mint); }
+    .dots i:nth-child(3) { background: var(--lavender); }
+
+    .screen {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+      padding: 18px;
+    }
+
+    .panel {
+      border: 1px solid #c7ddf0;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .profile {
+      padding: 18px;
+    }
+
+    .profile-head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: #dcecff;
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 38px;
+      opacity: 0.92;
+    }
+
+    .profile h2 {
+      margin: 0;
+      color: var(--assist-navy);
+      font-size: 16px;
+    }
+
+    .profile p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 14px 0;
+    }
+
+    .tag {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #386aa4;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .score {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .score div {
+      padding: 11px;
+      border-radius: 8px;
+      background: #f8fbff;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .score strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--assist-blue);
+      font-size: 18px;
+    }
+
+    .list {
+      padding: 14px;
+    }
+
+    .list h3 {
+      margin: 0 0 12px;
+      color: var(--assist-navy);
+      font-size: 14px;
+    }
+
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-height: 58px;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f8fbff;
+    }
+
+    .icon {
+      display: grid;
+      place-items: center;
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #dbeafe;
+      color: var(--assist-blue);
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .item strong {
+      display: block;
+      color: #334155;
+      font-size: 12px;
+    }
+
+    .item span {
+      display: block;
+      margin-top: 4px;
+      color: #77879a;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .palette {
+      position: absolute;
+      left: -34px;
+      bottom: 52px;
+      display: grid;
+      grid-template-columns: repeat(2, 62px);
+      gap: 12px;
+      transform: rotate(32deg);
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(156, 194, 220, 0.48);
+      box-shadow: 0 18px 30px rgba(23, 52, 93, 0.12);
+    }
+
+    .swatch {
+      height: 62px;
+      border-radius: 8px;
+    }
+
+    .swatch:nth-child(1) { background: #a9b9e9; }
+    .swatch:nth-child(2) { background: #f8c4a9; }
+    .swatch:nth-child(3) { background: #7f78c8; }
+    .swatch:nth-child(4) { background: #66b7d4; }
+
+    .pen {
+      position: absolute;
+      right: -42px;
+      top: 36px;
+      width: 58px;
+      height: 196px;
+      border-radius: 30px;
+      background: #5b3e35;
+      transform: rotate(38deg);
+      box-shadow: 0 12px 28px rgba(60, 38, 32, 0.28);
+    }
+
+    .pen::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      top: 22px;
+      width: 12px;
+      height: 62px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.34);
+    }
+
+    .pen::after {
+      content: "";
+      position: absolute;
+      left: 13px;
+      bottom: -42px;
+      width: 30px;
+      height: 58px;
+      background: #2e2626;
+      clip-path: polygon(50% 100%, 0 0, 100% 0);
+    }
+
+    .bottom-band {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 16px;
+      padding: 0 66px 44px;
+    }
+
+    .mini {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 76px;
+      padding: 16px;
+      border: 1px solid rgba(31, 95, 168, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.76);
+    }
+
+    .mini b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--assist-navy);
+      font-size: 14px;
+    }
+
+    .mini span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .mini-mark {
+      display: grid;
+      place-items: center;
+      flex: 0 0 42px;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: #e4f0fb;
+      color: var(--assist-blue);
+      font-weight: 900;
+    }
+
+    .view {
+      display: none;
+      position: relative;
+      z-index: 2;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .app-view {
+      padding: 24px 66px 54px;
+    }
+
+    .app-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .app-title {
+      margin: 0;
+      color: var(--assist-navy);
+      font-size: 34px;
+      line-height: 1.18;
+    }
+
+    .app-desc {
+      margin: 10px 0 0;
+      max-width: 640px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+
+    .tool-search {
+      display: flex;
+      align-items: center;
+      min-width: 310px;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      color: #8ca0b8;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card,
+    .work-card,
+    .data-card,
+    .faculty-card,
+    .recommend-card {
+      border: 1px solid rgba(31, 95, 168, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 10px 26px rgba(23, 52, 93, 0.08);
+    }
+
+    .stat-card {
+      padding: 18px;
+    }
+
+    .stat-card b {
+      display: block;
+      color: var(--assist-blue);
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .stat-card span {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .work-card {
+      padding: 20px;
+    }
+
+    .work-card h3,
+    .data-card h3,
+    .faculty-card h3,
+    .recommend-card h3 {
+      margin: 0 0 14px;
+      color: var(--assist-navy);
+      font-size: 18px;
+    }
+
+    .chart {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 112px 1fr 42px;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .bar-track {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8f1fa;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--assist-blue), var(--mint));
+    }
+
+    .queue {
+      display: grid;
+      gap: 10px;
+    }
+
+    .queue-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 13px;
+      border-radius: 8px;
+      background: #f8fbff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .queue-item em {
+      color: var(--assist-blue);
+      font-style: normal;
+      white-space: nowrap;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      padding: 9px 13px;
+      border: 1px solid rgba(31, 95, 168, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #47627f;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .faculty-grid,
+    .recommend-grid,
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .faculty-card,
+    .recommend-card,
+    .data-card {
+      padding: 18px;
+    }
+
+    .faculty-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .faculty-photo {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: #dbeafe;
+      color: var(--assist-blue);
+      font-weight: 900;
+    }
+
+    .faculty-card p,
+    .recommend-card p,
+    .data-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .match {
+      display: inline-flex;
+      align-items: center;
+      margin: 14px 0;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: var(--assist-blue);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .soft-list {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .soft-list span {
+      padding: 10px;
+      border-radius: 8px;
+      background: #f8fbff;
+      color: #40546c;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .prompt-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 16px;
+      border: 1px solid rgba(31, 95, 168, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .prompt-box input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .upload-zone {
+      display: grid;
+      place-items: center;
+      min-height: 188px;
+      margin-bottom: 16px;
+      padding: 24px;
+      border: 2px dashed #9bc1dc;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.62);
+      text-align: center;
+    }
+
+    .upload-zone b {
+      display: block;
+      color: var(--assist-navy);
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .upload-zone span {
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .connector-state {
+      display: inline-flex;
+      margin-top: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #e8fff8;
+      color: #22806f;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 920px) {
+      .stage {
+        padding: 18px;
+        width: min(100% - 24px, 760px);
+      }
+
+      .page {
+        min-height: auto;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 30px 28px 18px;
+      }
+
+      nav {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+        padding: 20px 28px 32px;
+      }
+
+      .visual {
+        min-height: 500px;
+      }
+
+      .monitor {
+        left: 0;
+        right: auto;
+      }
+
+      .bottom-band {
+        grid-template-columns: 1fr;
+        padding: 0 28px 30px;
+      }
+
+      .app-view {
+        padding: 20px 28px 34px;
+      }
+
+      .app-head,
+      .prompt-box {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .tool-search {
+        min-width: 100%;
+      }
+
+      .dashboard-grid,
+      .faculty-grid,
+      .recommend-grid,
+      .data-grid,
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        max-width: 100%;
+        font-size: 42px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .stage {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        padding: 10px;
+      }
+
+      .page {
+        border-radius: 10px;
+      }
+
+      nav a,
+      .search {
+        font-size: 12px;
+      }
+
+      header {
+        padding: 22px 18px 14px;
+      }
+
+      .brand img {
+        width: 128px;
+      }
+
+      nav {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      nav a,
+      .search {
+        justify-content: center;
+        width: 100%;
+        min-height: 34px;
+        padding: 8px 10px;
+        text-align: center;
+      }
+
+      main,
+      .app-view {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      h1 {
+        font-size: 34px;
+        line-height: 1.12;
+      }
+
+      .subtitle,
+      .app-desc {
+        font-size: 14px;
+      }
+
+      .metrics,
+      .screen {
+        grid-template-columns: 1fr;
+      }
+
+      .monitor {
+        position: relative;
+        top: 0;
+      }
+
+      .palette,
+      .pen {
+        display: none;
+      }
+
+      .bottom-band {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="page">
+      <div class="blob one"></div>
+      <div class="blob two"></div>
+      <div class="blob three"></div>
+      <div class="spark s1">+</div>
+      <div class="spark s2">+</div>
+      <div class="spark s3">+</div>
+      <div class="spark s4">+</div>
+      <div class="spark s5">+</div>
+      <div class="spark s6">+</div>
+
+      <header>
+        <a class="brand" href="#" aria-label="aSSIST University">
+          <img src="assets/assist-logo-basic.png" alt="aSSIST University 로고" />
+        </a>
+        <nav aria-label="주요 메뉴">
+          <a class="active" href="#home" data-target="home">Home</a>
+          <a href="#dashboard" data-target="dashboard">Dashboard</a>
+          <a href="#faculty" data-target="faculty">Faculty</a>
+          <a href="#recommend" data-target="recommend">AI Recommend</a>
+          <a href="#data" data-target="data">Data Link</a>
+          <div class="search">Search</div>
+        </nav>
+      </header>
+
+      <section class="view home-view active" data-view="home">
+      <main>
+        <section class="hero-copy" aria-labelledby="page-title">
+          <div class="eyebrow">AI 기반 교육 제안 지원</div>
+          <h1 id="page-title">aSSIST University 통합 교강사진 DB</h1>
+          <p class="subtitle">
+            학교 홈페이지의 공식 프로필과 내부 강의평가 데이터를 연결해
+            기업 니즈에 맞는 교강사진을 빠르게 추천합니다.
+          </p>
+          <div class="actions">
+            <a class="btn primary" href="#recommend" data-target="recommend">강사 추천 받기</a>
+            <a class="btn" href="#data" data-target="data">데이터 업로드</a>
+          </div>
+          <div class="metrics" aria-label="핵심 지표">
+            <div class="metric">
+              <strong>1,248</strong>
+              <span>교강사진 프로필</span>
+            </div>
+            <div class="metric">
+              <strong>8,420</strong>
+              <span>강의평가 응답</span>
+            </div>
+            <div class="metric">
+              <strong>92%</strong>
+              <span>추천 근거 매칭률</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="visual" aria-label="통합 교강사진 DB 화면 예시">
+          <div class="palette" aria-hidden="true">
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+            <div class="swatch"></div>
+          </div>
+          <div class="monitor">
+            <div class="screen-bar">
+              <span>Faculty Recommendation Workspace</span>
+              <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            </div>
+            <div class="screen">
+              <div class="panel profile">
+                <div class="profile-head">
+                  <div class="avatar">
+                    <img src="assets/assist-emblem.png" alt="" />
+                  </div>
+                  <div>
+                    <h2>추천 후보: 김OO 교수</h2>
+                    <p>AIㆍ디지털전환ㆍ기업교육</p>
+                  </div>
+                </div>
+                <div class="tag-row">
+                  <span class="tag">생성형 AI</span>
+                  <span class="tag">리더십</span>
+                  <span class="tag">실습 가능</span>
+                  <span class="tag">기업 맞춤형</span>
+                </div>
+                <div class="score">
+                  <div>강의력<strong>4.8</strong></div>
+                  <div>목표 충실<strong>4.7</strong></div>
+                  <div>자료 최신성<strong>4.6</strong></div>
+                  <div>재섭외 추천<strong>High</strong></div>
+                </div>
+              </div>
+
+              <div class="panel list">
+                <h3>업데이트 후보</h3>
+                <div class="item">
+                  <div class="icon">1</div>
+                  <div>
+                    <strong>학교 홈페이지 프로필 변경</strong>
+                    <span>최근 연구분야와 주요 경력 자동 요약 필요</span>
+                  </div>
+                </div>
+                <div class="item">
+                  <div class="icon">2</div>
+                  <div>
+                    <strong>Typeform 강의평가 업로드</strong>
+                    <span>문항을 공통 카테고리로 매핑 중</span>
+                  </div>
+                </div>
+                <div class="item">
+                  <div class="icon">3</div>
+                  <div>
+                    <strong>주관식 특이사항 발견</strong>
+                    <span>기업 사례 반영 강점, 자료 사전 공유 관리 필요</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pen" aria-hidden="true"></div>
+        </section>
+      </main>
+
+      <section class="bottom-band" aria-label="주요 기능 요약">
+        <div class="mini">
+          <div class="mini-mark">DB</div>
+          <div>
+            <b>통합 프로필</b>
+            <span>학교 공식 정보와 내부 운영 데이터를 하나의 교강사진 카드로 정리</span>
+          </div>
+        </div>
+        <div class="mini">
+          <div class="mini-mark">AI</div>
+          <div>
+            <b>평가 표준화</b>
+            <span>Typeform, 엑셀, 학사시스템 평가 문항을 공통 기준으로 분류</span>
+          </div>
+        </div>
+        <div class="mini">
+          <div class="mini-mark">Go</div>
+          <div>
+            <b>제안서 활용</b>
+            <span>추천 사유와 강사 소개 문안을 바로 생성해 제안 업무에 연결</span>
+          </div>
+        </div>
+      </section>
+      </section>
+
+      <section class="view app-view" data-view="dashboard">
+        <div class="app-head">
+          <div>
+            <div class="eyebrow">운영 현황</div>
+            <h2 class="app-title">Dashboard</h2>
+            <p class="app-desc">교강사진 데이터, 강의평가 수집 현황, 업데이트 대기 건을 한눈에 확인하는 관리자 화면입니다.</p>
+          </div>
+          <div class="tool-search">기간: 2026년 1학기 전체</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><b>1,248</b><span>등록 교강사진</span></div>
+          <div class="stat-card"><b>312</b><span>기업교육 강의 이력</span></div>
+          <div class="stat-card"><b>8,420</b><span>강의평가 응답</span></div>
+          <div class="stat-card"><b>126</b><span>업데이트 후보</span></div>
+        </div>
+        <div class="dashboard-grid">
+          <div class="work-card">
+            <h3>분야별 강사 풀</h3>
+            <div class="chart">
+              <div class="bar-row"><span>AIㆍDX</span><div class="bar-track"><div class="bar-fill" style="width: 86%"></div></div><b>86</b></div>
+              <div class="bar-row"><span>리더십</span><div class="bar-track"><div class="bar-fill" style="width: 72%"></div></div><b>72</b></div>
+              <div class="bar-row"><span>ESG</span><div class="bar-track"><div class="bar-fill" style="width: 58%"></div></div><b>58</b></div>
+              <div class="bar-row"><span>마케팅</span><div class="bar-track"><div class="bar-fill" style="width: 64%"></div></div><b>64</b></div>
+              <div class="bar-row"><span>데이터 분석</span><div class="bar-track"><div class="bar-fill" style="width: 79%"></div></div><b>79</b></div>
+            </div>
+          </div>
+          <div class="work-card">
+            <h3>오늘의 확인 필요 항목</h3>
+            <div class="queue">
+              <div class="queue-item"><span>학교 홈페이지 프로필 변경 감지</span><em>18건</em></div>
+              <div class="queue-item"><span>Typeform 평가 문항 매핑 대기</span><em>7건</em></div>
+              <div class="queue-item"><span>주관식 특이사항 검수 필요</span><em>24건</em></div>
+              <div class="queue-item"><span>신규 강사 최소정보 등록</span><em>9건</em></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view app-view" data-view="faculty">
+        <div class="app-head">
+          <div>
+            <div class="eyebrow">검색과 비교</div>
+            <h2 class="app-title">교강사 검색</h2>
+            <p class="app-desc">전공, 강의 가능 분야, 강의평가, 과정 유형, 담당자 메모를 기준으로 적합한 교강사진을 빠르게 찾습니다.</p>
+          </div>
+          <div class="tool-search">생성형 AI, 기업교육, 실습 가능</div>
+        </div>
+        <div class="filter-row">
+          <span class="chip">전체</span>
+          <span class="chip">석사</span>
+          <span class="chip">박사</span>
+          <span class="chip">기업교육</span>
+          <span class="chip">특강</span>
+          <span class="chip">평점 4.5+</span>
+          <span class="chip">재섭외 추천</span>
+        </div>
+        <div class="faculty-grid">
+          <article class="faculty-card">
+            <div class="faculty-meta"><div class="faculty-photo">김</div><div><h3>김OO 교수</h3><p>aSSIST University / AI 전략</p></div></div>
+            <span class="match">추천 적합도 96%</span>
+            <p>생성형 AI 활용, 디지털 전환, 임원 대상 특강 경험이 풍부합니다.</p>
+            <div class="soft-list"><span>강의력 4.8 / 자료 최신성 4.6</span><span>기업 사례 반영 강점</span></div>
+          </article>
+          <article class="faculty-card">
+            <div class="faculty-meta"><div class="faculty-photo">박</div><div><h3>박OO 교수</h3><p>외부 전문가 / 조직문화</p></div></div>
+            <span class="match">추천 적합도 91%</span>
+            <p>리더십, 조직문화, 팀장 교육에 적합하며 토론형 진행 평가가 높습니다.</p>
+            <div class="soft-list"><span>강의력 4.7 / 시간배분 4.5</span><span>워크숍 운영 가능</span></div>
+          </article>
+          <article class="faculty-card">
+            <div class="faculty-meta"><div class="faculty-photo">이</div><div><h3>이OO 교수</h3><p>겸임교수 / 데이터 분석</p></div></div>
+            <span class="match">추천 적합도 88%</span>
+            <p>실무자 대상 데이터 리터러시와 엑셀ㆍBI 실습형 강의에 강점이 있습니다.</p>
+            <div class="soft-list"><span>실습 만족도 4.9</span><span>노트북 필수 과목</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view app-view" data-view="recommend">
+        <div class="app-head">
+          <div>
+            <div class="eyebrow">제안서 작성 지원</div>
+            <h2 class="app-title">AI 강사 추천</h2>
+            <p class="app-desc">기업명, 교육 목적, 대상자, 커리큘럼 초안을 입력하면 내부 검증 데이터를 기반으로 강사 후보와 추천 사유를 생성합니다.</p>
+          </div>
+        </div>
+        <div class="prompt-box">
+          <input value="제조기업 팀장 대상 생성형 AI 리더십 1일 과정에 적합한 강사 추천" aria-label="추천 요청 내용" />
+          <a class="btn primary" href="#">추천 실행</a>
+        </div>
+        <div class="recommend-grid">
+          <article class="recommend-card">
+            <h3>1순위 추천: 김OO 교수</h3>
+            <span class="match">근거 매칭 96%</span>
+            <p>최근 기업교육에서 AI 리더십과 실무 적용 사례를 다수 진행했고, 교육목표 충실도와 강의력 평가가 높습니다.</p>
+            <div class="soft-list"><span>추천 사유: 제조업 사례 적용 가능</span><span>제안서 문안: AI 전환 시대의 리더십과 조직 실행력을 연결하는 강의</span></div>
+          </article>
+          <article class="recommend-card">
+            <h3>2순위 추천: 박OO 교수</h3>
+            <span class="match">근거 매칭 91%</span>
+            <p>팀장급 대상 조직문화, 변화관리 강의에 적합하며 커리큘럼 논의가 용이하다는 담당자 메모가 있습니다.</p>
+            <div class="soft-list"><span>추천 사유: 변화관리 모듈 보완</span><span>주의사항: 사전 논의 시간 확보 권장</span></div>
+          </article>
+          <article class="recommend-card">
+            <h3>대체 후보: 이OO 교수</h3>
+            <span class="match">근거 매칭 84%</span>
+            <p>실습 중심 과정에 강점이 있어 AI 도구 실습 세션을 포함할 때 보조 강사 또는 분반 강사로 적합합니다.</p>
+            <div class="soft-list"><span>추천 사유: 노트북 실습 운영 가능</span><span>주의사항: 실습 환경 사전 세팅 필요</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view app-view" data-view="data">
+        <div class="app-head">
+          <div>
+            <div class="eyebrow">데이터 수집과 연동</div>
+            <h2 class="app-title">파일 업로드ㆍ외부 사이트 연동</h2>
+            <p class="app-desc">학사시스템, Typeform, 구글폼, 엑셀, 학교 홈페이지 데이터를 모아 표준 항목으로 변환합니다.</p>
+          </div>
+          <div class="tool-search">마지막 동기화: 오늘 09:30</div>
+        </div>
+        <div class="upload-zone">
+          <div>
+            <b>강의평가 파일을 업로드하세요</b>
+            <span>Excel, CSV, PDF, 설문 결과 파일을 올리면 AI가 문항을 공통 카테고리로 매핑합니다.</span>
+          </div>
+        </div>
+        <div class="data-grid">
+          <article class="data-card">
+            <h3>학교 홈페이지</h3>
+            <p>교수진 공식 프로필, 소속, 전공, 연구분야, 주요 경력을 수집합니다.</p>
+            <span class="connector-state">연동됨</span>
+          </article>
+          <article class="data-card">
+            <h3>학사시스템</h3>
+            <p>학위과정 강의평가와 과목 정보를 정기적으로 반영합니다.</p>
+            <span class="connector-state">권한 확인 필요</span>
+          </article>
+          <article class="data-card">
+            <h3>Typeform / 구글폼</h3>
+            <p>비학위과정 설문 결과를 업로드하거나 API로 연결합니다.</p>
+            <span class="connector-state">파일 업로드 가능</span>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script>
+    const links = document.querySelectorAll("[data-target]");
+    const views = document.querySelectorAll("[data-view]");
+
+    function openView(name) {
+      views.forEach((view) => {
+        view.classList.toggle("active", view.dataset.view === name);
+      });
+      document.querySelectorAll("nav [data-target]").forEach((link) => {
+        link.classList.toggle("active", link.dataset.target === name);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    links.forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const target = link.dataset.target;
+        if (!target) return;
+        event.preventDefault();
+        history.replaceState(null, "", `#${target}`);
+        openView(target);
+      });
+    });
+
+    const initial = location.hash.replace("#", "") || "home";
+    openView(document.querySelector(`[data-view="${initial}"]`) ? initial : "home");
+  </script>
+</body>
+</html>
